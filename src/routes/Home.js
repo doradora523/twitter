@@ -1,31 +1,43 @@
+import Tweet from "components/Tweet";
 import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 
-const Home = () => {
+const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
 
-  const getTweets = async () => {
-    const dbTweets = await dbService.collection("tweets").get();
+  // 오래된 데이터를 가져오는 법/ 변경된 데이터는 새로고침해야 반영된다.
+  // const getTweets = async () => {
+  //   const dbTweets = await dbService.collection("tweets").get();
 
-    dbTweets.forEach((document) => {
-      const tweetObject = {
-        ...document.data(),
-        id: document.id,
-      };
-      setTweets((prev) => [tweetObject, ...prev]);
-    });
-  };
+  //   dbTweets.forEach((document) => {
+  //     const tweetObject = {
+  //       ...document.data(),
+  //       id: document.id,
+  //     };
+  //     setTweets((prev) => [tweetObject, ...prev]);
+  //   });
+  // };
 
   useEffect(() => {
-    getTweets();
+    // getTweets();
+
+    // realtime database 실시간으로 data를 제공 => onSnapshot()
+    dbService.collection("tweets").onSnapshot((snapshot) => {
+      const tweetArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTweets(tweetArray);
+    });
   }, []);
 
   const onSubmit = async (event) => {
     event.preventDefault();
     await dbService.collection("tweets").add({
-      tweet,
+      text: tweet,
       createAt: Date.now(),
+      creatorId: userObj.uid,
     });
     setTweet("");
   };
@@ -51,9 +63,11 @@ const Home = () => {
       </form>
       <div>
         {tweets.map((tweet) => (
-          <div key={tweet.id}>
-            <h4>{tweet.tweet}</h4>
-          </div>
+          <Tweet
+            key={tweet.id}
+            tweetObj={tweet}
+            isOwner={tweet.creatorId === userObj.uid}
+          />
         ))}
       </div>
     </div>
