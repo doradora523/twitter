@@ -22,6 +22,7 @@ function App() {
       setInit(true);
     });
   }, []);
+
   const refreshUser = () => {
     const user = authService.currentUser;
     setUserObj({
@@ -30,6 +31,7 @@ function App() {
       updateProfile: (args) => user.updateProfile(args),
     });
   };
+
   return (
     <>
       {init ? (
