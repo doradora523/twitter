@@ -7,14 +7,21 @@ const Tweet = ({ tweetObj, isOwner }) => {
   // input 에 입력된 text 를 업데이트
   const [newTweet, setNewTweet] = useState(tweetObj.text);
 
+
   const onDeleteClick = async () => {
     const ok = window.confirm("Are you sure you want to delete this tweet?");
-    console.log(ok);
+
     if (ok) {
-      // delete tweet
-      await dbService.doc(`tweets/${tweetObj.id}`).delete();
-      // delete attachment
-      await storageService.refFromURL(tweetObj.attachmentUrl).delete();
+      try {
+        // delete tweet
+        await dbService.doc(`tweets/${tweetObj.id}`).delete();
+        if (tweetObj.attachmentUrl !== "") {
+          // delete attachment
+          await storageService.refFromURL(tweetObj.attachmentUrl).delete();
+        }
+      } catch (error) {
+        window.alert("Failed to delete tweet");
+      }
     }
   };
 
