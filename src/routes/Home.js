@@ -1,6 +1,6 @@
 import Tweet from "components/Tweet";
 import TweetFactory from "components/TweetFactory";
-import { dbService, storageService } from "fbase";
+import { dbService } from "fbase";
 import React, { useEffect, useState } from "react";
 
 const Home = ({ userObj }) => {
@@ -33,9 +33,9 @@ const Home = ({ userObj }) => {
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <TweetFactory userObj={userObj} />
-      <div>
+      <div style={{ marginTop: 30 }}>
         {tweets.map((tweet) => (
           <Tweet
             key={tweet.id}
